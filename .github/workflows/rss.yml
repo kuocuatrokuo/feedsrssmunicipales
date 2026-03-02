@@ -32,19 +32,20 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 certifi papermill ipykernel lxml
-
+      
       - name: Generate RSS (papermill)
         run: |
+          rm -f rss.xml
           papermill "rss_pamplona.py.ipynb" "out.ipynb"
 
-      - name: Debug - confirm rss.xml
+      - name: Debug - confirm rss.xml (must be new)
         run: |
           ls -la
           if [ ! -f rss.xml ]; then
-            echo "ERROR: rss.xml no se ha generado."
+            echo "ERROR: rss.xml NO se ha generado al ejecutar el notebook."
             exit 1
           fi
-          echo "lastBuildDate:"
+          echo "lastBuildDate en rss.xml:"
           grep -n "lastBuildDate" rss.xml || true
 
       - name: Commit updated RSS
