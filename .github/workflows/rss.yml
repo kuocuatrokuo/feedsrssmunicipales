@@ -31,18 +31,28 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests beautifulsoup4 certifi nbconvert jupyter
+          pip install requests beautifulsoup4 certifi papermill ipykernel lxml
 
-      - name: Generate RSS (run notebook)
+      - name: Generate RSS (papermill)
         run: |
-          jupyter nbconvert --to notebook --execute "rss_pamplona.py.ipynb" --output "out.ipynb"
+          papermill "rss_pamplona.py.ipynb" "out.ipynb"
+
+      - name: Debug - confirm rss.xml
+        run: |
+          ls -la
+          if [ ! -f rss.xml ]; then
+            echo "ERROR: rss.xml no se ha generado."
+            exit 1
+          fi
+          echo "lastBuildDate:"
+          grep -n "lastBuildDate" rss.xml || true
 
       - name: Commit updated RSS
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add rss.xml out.ipynb
+          git add -A
 
           if git diff --cached --quiet; then
             echo "No changes to commit."
